@@ -1,0 +1,43 @@
+name: Sync Immich Upstream
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get latest Immich release
+        id: immich
+        run: |
+          LATEST=$(curl -s https://api.github.com/repos/immich-app/immich/releases/latest | jq -r .tag_name)
+          echo "version=$LATEST" >> $GITHUB_OUTPUT
+
+      - name: Read current version file
+        id: current
+        run: |
+          if [ -f IMMICH_VERSION ]; then
+            echo "current=$(cat IMMICH_VERSION)" >> $GITHUB_OUTPUT
+          else
+            echo "current=none" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Compare versions
+        if: steps.immich.outputs.version != steps.current.outputs.current
+        run: |
+          echo "New Immich version detected: ${{ steps.immich.outputs.version }}"
+          echo "${{ steps.immich.outputs.version }}" > IMMICH_VERSION
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add IMMICH_VERSION
+          git commit -am "Sync Immich version to ${{ steps.immich.outputs.version }}"
+          git push
