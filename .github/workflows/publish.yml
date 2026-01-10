@@ -44,11 +44,11 @@ jobs:
         run: |
           docker build \
             --build-arg IMMICH_VERSION=${{ env.IMMICH_VERSION }} \
-            -t ghcr.io/urkaz/immich-server-gocryptfs:latest \
+            -t ghcr.io/urkaz/immich-server-gocryptfs:release \
             -t ghcr.io/urkaz/immich-server-gocryptfs:${{ env.IMMICH_VERSION }} \
             .
 
       - name: Push image
         run: |
-          docker push ghcr.io/urkaz/immich-server-gocryptfs:latest
+          docker push ghcr.io/urkaz/immich-server-gocryptfs:release
           docker push ghcr.io/urkaz/immich-server-gocryptfs:${{ env.IMMICH_VERSION }}
