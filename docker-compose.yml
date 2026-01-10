@@ -3,7 +3,7 @@ name: immich
 services:
   immich-server:
     container_name: immich_server
-    image: urkaz/immich-server-gocryptfs:${IMMICH_VERSION:-release}
+    image: ghcr.io/urkaz/immich-server-gocryptfs:${IMMICH_VERSION:-latest}
     volumes:
       # Do not edit the following lines. If you want to change the media storage locations on your system, edit the values of ENCRYPTED_LOCATION and UNENCRYPTED_LOCATION in the .env file
 
