@@ -2,7 +2,7 @@ name: Sync Immich Upstream
 
 on:
   schedule:
-    - cron: "0 */6 * * *"
+    - cron: "0 */24 * * *"
   workflow_dispatch:
 
 jobs:
@@ -19,8 +19,19 @@ jobs:
       - name: Get latest Immich release
         id: immich
         run: |
-          LATEST=$(curl -s https://api.github.com/repos/immich-app/immich/releases/latest | jq -r .tag_name)
-          echo "version=$LATEST" >> $GITHUB_OUTPUT
+            RESPONSE=$(curl -s \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github+json" \
+              https://api.github.com/repos/immich-app/immich/releases/latest)
+
+            LATEST=$(echo "$RESPONSE" | jq -r '.tag_name // empty')
+
+            if [ -z "$LATEST" ]; then
+              echo "No valid Immich release found. Skipping."
+              exit 0
+            fi
+
+            echo "version=$LATEST" >> $GITHUB_OUTPUT
 
       - name: Read current version file
         id: current
